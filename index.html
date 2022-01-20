@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>向上滚动停留然后消失</title>
+    <style>
+      .container {
+        width: 800px;
+        height: 600px;
+        border: 1px solid gray;
+        overflow: hidden;
+        position: relative;
+      }
+      .item {
+        width: 600px;
+        height: 100px;
+        background: goldenrod;
+        position: absolute;
+        border: 1px dashed greenyellow;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="mockAction()">MockData</button>
+    <div class="container"></div>
+  </body>
+  <script>
+    let mockData = [];
+    const shownArr = [];
+    const restArr = [];
+    const container = document.querySelector(".container");
+    const containerDetails = {
+      height: 600,
+    };
+    const itemDetails = {
+      height: 100,
+    };
+    let n = 0;
+    // insertAdjacentHTML() 方法将指定的文本解析为 Element 元素，并将结果节点插入到DOM树中的指定位置。
+    // 它不会重新解析它正在使用的元素，因此它不会破坏元素内的现有元素。这避免了额外的序列化步骤，
+    // 使其比直接使用innerHTML操作更快。
+
+    // 模拟接收到数据
+    // 若此时面板仍有空间,即当前展示数组 < 5 时
+
+    function moveStart() {
+      mockData.forEach((item) => {
+        // if (shownArr.length < 5) {
+        if (true) {
+          // 判断 restArr 是否有要加入的任务
+          // if (restArr) {
+          //   shownArr.push(restArr.splice(0, 1));
+          // } else {
+          //   // 通过数组的长度来控制面板要移动的距离
+          //   // 若长度小于 5,则添加进要展示列表
+          // }
+          shownArr.push(item);
+          // 此处插入的项目在图表中第几项
+          let lenMark = shownArr.length - 1;
+
+          // let tInnerHtml = `<div class="item" id="panelItem${item.id}">id:${item.id}  name: ${item.name}</div>`;
+          // 通过 shownArr.length 来控制距离, 当 bottom = '-100px' 时即完全隐藏
+          let bottomDistance = -100 - (shownArr.length - 1) * 120;
+          let tInnerHtml = `<div class="item" id="panelItem${item.id}" style="bottom: ${bottomDistance}px;">id:${item.id}  name: ${item.name}</div>`;
+
+          container.insertAdjacentHTML("beforeend", tInnerHtml);
+
+          let scrollToTopTimer = window.setInterval(function () {
+            // 500 是 container.height -
+            if (
+              bottomDistance <
+              containerDetails.height -
+                itemDetails.height -
+                lenMark * (20 + 100)
+            ) {
+              bottomDistance += 10;
+              document.querySelector(
+                `#panelItem${item.id}`
+              ).style = `bottom: ${bottomDistance}px;`;
+            } else {
+              // console.log(`清除设备 id:${item.id} 向上滚动的定时器`);
+              window.clearInterval(scrollToTopTimer); //清除定时器
+              // 移动到指定位置 2s 后开始变为透明且向上移动
+              let disprDistance = 0;
+
+              setTimeout(() => {
+                shownArr.splice(0, 1);
+
+                let scrollToOutside = window.setInterval(function () {
+                  // 此处 120 要算上 margin-bottom 的时间
+                  if (disprDistance < 100 + 120 * lenMark) {
+                    disprDistance += 10;
+                    document.querySelector(
+                      `#panelItem${item.id}`
+                    ).style = `bottom: ${bottomDistance + disprDistance}px;`;
+                  } else {
+                    window.clearInterval(scrollToOutside); // 清除消失定时器
+                    document.querySelector(`#panelItem${item.id}`).remove();
+                  }
+                }, 100);
+              }, 1000);
+            }
+          }, 100);
+        }
+        // else {
+        //   restArr.push(item);
+        // }
+      });
+    }
+
+    // 模拟接收真实数据后执行的动作
+    function mockAction() {
+      generateData();
+      moveStart();
+      console.log("shownArr", shownArr);
+    }
+
+    // 模拟生成真实数据行为
+    function generateData() {
+      n++;
+      switch (n) {
+        case 1:
+          mockData = [
+            { id: 1, name: "wush1" },
+            { id: 2, name: "wush2" },
+            { id: 3, name: "wush3" },
+            { id: 4, name: "wush4" },
+            { id: 5, name: "wush5" },
+          ];
+          break;
+        case 2:
+          mockData = [
+            { id: 6, name: "wush6" },
+            { id: 7, name: "wush7" },
+          ];
+          break;
+        case 3:
+          mockData = [
+            { id: 8, name: "wush8" },
+            { id: 9, name: "wush9" },
+            { id: 10, name: "wush10" },
+          ];
+        case 4:
+          mockData = [
+            { id: 11, name: "wush11" },
+            { id: 12, name: "wush12" },
+            { id: 13, name: "wush13" },
+          ];
+        default:
+          break;
+      }
+    }
+  </script>
+</html>
