@@ -1,7 +1,8 @@
 <template>
   <div>
-    <button @click="websockGetData()">mock</button>
-    <div ref="container" class="container"></div>
+    <button @click="websockGetData()">mockAdd</button>
+    <button @click="removeChild()">remove</button>
+    <div ref="container" id="container" class="container"></div>
   </div>
 </template>
 
@@ -19,6 +20,7 @@ export default {
       },
       n: 0,
       isAddDuration: false, // 如果在新增则不执行向上滚动画
+      removeChildInterval: null, // 移除项定时器
     };
   },
   methods: {
@@ -83,8 +85,23 @@ export default {
       }
     },
     removeChild() {
-      // 将最上方的节点移除
+      const obj = this.$refs.container;
+      // 将最上方节点移除,同时添加进新的节点
+      // 再整体上移
+      obj.children[0].remove();
+      if (this.unshownArr.length > 0) {
+        const item = this.unshownArr[0];
+        const tInnerHtml = `<div class="item" id="panelItem${item.id}" style="top:600px;">id:${item.id}  name: ${item.name}</div>`;
 
+        this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
+        this.unshownArr.shift();
+      }
+      setTimeout(() => {
+        for (let i = 0; i < obj.children.length; i++) {
+          const ele = obj.children[i];
+          ele.style = `transition: transform 1s;transform: translateY(${-600 + (i * 125)}px);`;
+        }
+      }, 0);
     },
   },
 };
