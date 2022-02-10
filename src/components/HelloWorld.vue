@@ -26,6 +26,11 @@ export default {
   methods: {
     websockGetData() {
       this.generateData();
+      const elementCount = this.$refs.container.childElementCount;
+
+      if (this.removeChildInterval === null && elementCount) {
+        this.removeChildInterval = setInterval(() => { this.removeChild(); }, 3000);
+      }
     },
     generateData() {
       this.n = this.n + 1;
@@ -78,11 +83,6 @@ export default {
         this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
         setTimeout(() => {
           document.querySelector(`#panelItem${item.id}`).style = `transition: transform 2s;transition-delay: ${elementCount * 0.5}s;transform: translateY(${-600 + (elementCount * 125)}px);`;
-          if (this.removeChildInterval === null) {
-            setTimeout(() => {
-              this.removeChildInterval = setInterval(() => { this.removeChild(); }, 3000);
-            }, 2000 + (elementCount * 0.5 * 1000));
-          }
         }, 0);
       } else {
         this.unshownArr.push(item);
@@ -91,9 +91,20 @@ export default {
     },
     removeChild() {
       const obj = this.$refs.container;
-      // 将最上方节点移除,同时添加进新的节点
-      // 再整体上移
-      obj.children[0].remove();
+      const elementCount = this.$refs.container.childElementCount;
+      console.log('removeChild', elementCount, this.unshownArr.length);
+
+      // 容器内节点数为 0时，且没有要添加的元素时，停止定时器
+      if (elementCount === 0 && this.unshownArr.length === 0 && this.removeChildInterval) {
+        window.clearInterval(this.removeChildInterval);
+        this.removeChildInterval = null;
+        console.log('clearInterval');
+      }
+
+      if (obj.children.length > 0) {
+        // 移除最上面的那一个
+        obj.children[0].remove();
+      }
       if (this.unshownArr.length > 0) {
         const item = this.unshownArr[0];
         const tInnerHtml = `<div class="item" id="panelItem${item.id}" style="top:600px;">id:${item.id}  name: ${item.name}</div>`;
@@ -101,6 +112,7 @@ export default {
         this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
         this.unshownArr.shift();
       }
+      // 整体上移
       setTimeout(() => {
         for (let i = 0; i < obj.children.length; i++) {
           const ele = obj.children[i];
