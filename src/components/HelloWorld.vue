@@ -78,6 +78,11 @@ export default {
         this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
         setTimeout(() => {
           document.querySelector(`#panelItem${item.id}`).style = `transition: transform 2s;transition-delay: ${elementCount * 0.5}s;transform: translateY(${-600 + (elementCount * 125)}px);`;
+          if (this.removeChildInterval === null) {
+            setTimeout(() => {
+              this.removeChildInterval = setInterval(() => { this.removeChild(); }, 3000);
+            }, 2000 + (elementCount * 0.5 * 1000));
+          }
         }, 0);
       } else {
         this.unshownArr.push(item);
