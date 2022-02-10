@@ -77,7 +77,7 @@ export default {
     },
     addDomToContainer(item) {
       const elementCount = this.$refs.container.childElementCount;
-      if (elementCount < 5) {
+      if (elementCount < 6) {
         const tInnerHtml = `<div class="item" id="panelItem${item.id}" style="top:600px;">id:${item.id}  name: ${item.name}</div>`;
 
         this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
@@ -100,11 +100,7 @@ export default {
         this.removeChildInterval = null;
         console.log('clearInterval');
       }
-
-      if (obj.children.length > 0) {
-        // 移除最上面的那一个
-        obj.children[0].remove();
-      }
+      // 添加进新的一个元素等待上移
       if (this.unshownArr.length > 0) {
         const item = this.unshownArr[0];
         const tInnerHtml = `<div class="item" id="panelItem${item.id}" style="top:600px;">id:${item.id}  name: ${item.name}</div>`;
@@ -112,13 +108,19 @@ export default {
         this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
         this.unshownArr.shift();
       }
-      // 整体上移
-      setTimeout(() => {
-        for (let i = 0; i < obj.children.length; i++) {
-          const ele = obj.children[i];
-          ele.style = `transition: transform 1s;transform: translateY(${-600 + (i * 125)}px);`;
-        }
-      }, 0);
+      if (obj.children.length > 0) {
+        // 第一个在视觉上消失
+        obj.children[0].style = 'top:0;animation: 1s linear 0s running itemDisappear;';
+        // 整体上移
+        setTimeout(() => {
+          // 移除最上面的那一个真实 DOM 节点
+          obj.children[0].remove();
+          for (let i = 0; i < obj.children.length; i++) {
+            const ele = obj.children[i];
+            ele.style = `transition: transform 1s;transform: translateY(${-600 + (i * 125)}px);`;
+          }
+        }, 900);
+      }
     },
   },
 };
@@ -138,5 +140,14 @@ export default {
   background: goldenrod;
   position: absolute;
   top: 600px;
+}
+
+@keyframes itemDisappear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 </style>
