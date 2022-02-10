@@ -77,7 +77,7 @@ export default {
     },
     addDomToContainer(item) {
       const elementCount = this.$refs.container.childElementCount;
-      if (elementCount < 6) {
+      if (elementCount <= 5) {
         const tInnerHtml = `<div class="item" id="panelItem${item.id}" style="top:600px;">id:${item.id}  name: ${item.name}</div>`;
 
         this.$refs.container.insertAdjacentHTML('beforeend', tInnerHtml);
